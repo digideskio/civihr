@@ -80,7 +80,7 @@ class CRM_HRJob_BAO_HRJob extends CRM_HRJob_DAO_HRJob {
     ) AS Month,
     TIMESTAMPDIFF(DAY,
        {$joinDateColumnName}
-         + INTERVAL TIMESTAMPDIFF(MONTH, DATE{$joinDateColumnName}, CURDATE()) MONTH,
+         + INTERVAL TIMESTAMPDIFF(MONTH, {$joinDateColumnName}, CURDATE()) MONTH,
        CURDATE()
        ) AS Day
 FROM {$tablename}
