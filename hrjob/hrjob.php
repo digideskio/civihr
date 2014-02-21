@@ -70,6 +70,17 @@ function hrjob_civicrm_install() {
     }
   }
 
+  $jobParam = array(
+    'domain_id' => CRM_Core_Config::domainID(),
+    'name' => 'Update employment length',
+    'description' => 'Update employment length of employee on daily basis',
+    'run_frequency' => 'Daily',
+    'api_entity' => 'h_r_job',
+    'api_action' => 'update_employment_length',
+    'is_active' => 1,
+  );
+  CRM_Core_BAO_Job::create($jobParam);
+
   return _hrjob_civix_civicrm_install();
 }
 
@@ -87,6 +98,10 @@ function hrjob_civicrm_uninstall() {
       CRM_Contact_BAO_ContactType::del($id);
     }
   }
+
+  $jobId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Job', 'update_employment_length', 'id', 'api_action');
+  CRM_Core_BAO_Job::del($jobId);
+
   return _hrjob_civix_civicrm_uninstall();
 }
 

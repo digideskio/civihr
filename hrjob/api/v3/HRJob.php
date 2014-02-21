@@ -144,3 +144,8 @@ function civicrm_api3_h_r_job_duplicate($params) {
   // Spec: civicrm_api3_create_success($values = 1, $params = array(), $entity = NULL, $action = NULL)
   return civicrm_api3_create_success($duplicateCreateResult['values'], $params, 'HRJob', 'duplicate');
 }
+
+function civicrm_api3_h_r_job_update_employment_length($params) {
+  CRM_HRJob_BAO_HRJob::updateEmploymentLength();
+  return civicrm_api3_create_success();
+}

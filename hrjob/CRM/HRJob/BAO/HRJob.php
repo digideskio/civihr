@@ -64,6 +64,56 @@ class CRM_HRJob_BAO_HRJob extends CRM_HRJob_DAO_HRJob {
     return $dao->count();
   }
 
+  static function updateEmploymentLength() {
+    $tablename = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_CustomGroup', 'HRJob_Summary', 'table_name', 'name');
+    $joinDateColumnName = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_CustomField', 'Initial_Join_Date', 'column_name', 'name');
+    $empLengthColumnName = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_CustomField', 'Length_Of_Employment', 'column_name', 'name');
+
+    $sql = "SELECT id,
+    TIMESTAMPDIFF(YEAR,
+      {$joinDateColumnName},
+       CURDATE()
+    ) AS Year,
+    TIMESTAMPDIFF(MONTH,
+       {$joinDateColumnName} + INTERVAL TIMESTAMPDIFF(YEAR, {$joinDateColumnName}, CURDATE()) YEAR,
+        CURDATE()
+    ) AS Month,
+    TIMESTAMPDIFF(DAY,
+       {$joinDateColumnName}
+         + INTERVAL TIMESTAMPDIFF(MONTH, DATE{$joinDateColumnName}, CURDATE()) MONTH,
+       CURDATE()
+       ) AS Day
+FROM {$tablename}
+    ";
+
+    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    $employmentLengths =array();
+    while ($dao->fetch()) {
+      $formatLength = array();
+      if ($dao->Year > 1) {
+        $formatLength[] = $dao->Year . ' Years';
+      }
+      elseif ($dao->Year == 1) {
+        $formatLength[] = $dao->Year . ' Year';
+      }
+      if ($dao->Month > 1) {
+        $formatLength[] = $dao->Month . ' Months';
+      }
+      elseif ($dao->Month == 1) {
+        $formatLength[] = $dao->Month . ' Month';
+      }
+      if ($dao->Day > 1) {
+        $formatLength[] = $dao->Day . ' Days';
+      }
+      elseif ($dao->Day == 1) {
+        $formatLength[] = $dao->Day . ' Day';
+      }
+      $sql = "UPDATE {$tablename} SET {$empLengthColumnName} = '" . implode(', ', $formatLength) . "' WHERE id = " . $dao->id;
+      CRM_Core_DAO::executeQuery($sql);
+    }
+  }
+
   /**
    * combine all the importable fields from the lower levels object
    *
